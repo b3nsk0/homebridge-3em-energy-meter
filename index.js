@@ -16,7 +16,7 @@ module.exports = function (homebridge) {
 function EnergyMeter (log, config) {
 	this.log = log;
 	this.ip = config["ip"] || "127.0.0.1";
-	this.url = "http://" + this.ip + "/status/emeters?";
+	this.url = "http://" + this.ip + "/rpc/shelly.getstatus";
 	this.auth = config["auth"];
 	this.name = config["name"];
 	this.displayName = config["name"];
@@ -178,55 +178,55 @@ EnergyMeter.prototype.updateState = function () {
 						
 						if (this.use_em_mode == 0) {
 					   if (this.negative_handling_mode == 0) {
-					   	this.powerConsumption = (parseFloat(json.emeters[0].power)+parseFloat(json.emeters[1].power));
-					    this.totalPowerConsumption = ((parseFloat(json.emeters[0].total)+parseFloat(json.emeters[1].total))/1000);
-					    this.voltage1 = (((parseFloat(json.emeters[0].voltage)+parseFloat(json.emeters[1].voltage))/2));
-				    	this.ampere1 = ((this.powerConsumption/this.voltage1));
+					   	this.powerConsumption = (parseFloat(json["em:0"].total_act_power));
+					    this.totalPowerConsumption = ((parseFloat(json["emdata:0"].total_act)/1000));
+					    this.voltage1 = ((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				    	this.ampere1 = (((parseFloat(json["em:0"].total_current)*this.pf0)));
 				    	if (this.powerConsumption < 0) { this.powerConsumption = 0 }
 				    	if (this.totalPowerConsumption < 0) { this.totalPowerConsumption = 0 }
 				    	if (this.voltage1 < 0) { this.voltage1 = 0 }
 				    	if (this.ampere1 < 0) { this.ampere1 = 0 }
 					  } else if (this.negative_handling_mode == 1) {
-					    this.powerConsumption = Math.abs(parseFloat(json.emeters[0].power)+parseFloat(json.emeters[1].power));
-					    this.totalPowerConsumption = Math.abs((parseFloat(json.emeters[0].total)+parseFloat(json.emeters[1].total))/1000);
-					    this.voltage1 = Math.abs(((parseFloat(json.emeters[0].voltage)+parseFloat(json.emeters[1].voltage))/2));
-				    	    this.ampere1 = Math.abs((this.powerConsumption/this.voltage1));
+					    this.powerConsumption = Math.abs((parseFloat(json["em:0"].total_act_power)));
+					    this.totalPowerConsumption = Math.abs((parseFloat(json["emdata:0"].total_act)/1000));
+					    this.voltage1 = Math.abs((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				    	    this.ampere1 = Math.abs(((parseFloat(json["em:0"].total_current)*this.pf0)));
 				    	}
 						  	
 					  } else
 					  	{ if (this.use_em_mode == 1) {
 					        if (this.negative_handling_mode == 0) {
-					        this.powerConsumption = (parseFloat(json.emeters[0].power));
-					        this.totalPowerConsumption = (parseFloat(json.emeters[0].total)/1000);
-					        this.voltage1 = (parseFloat(json.emeters[0].voltage));
+					        this.powerConsumption = ((parseFloat(json["em:0"].total_act_power)));
+					        this.totalPowerConsumption = ((parseFloat(json["emdata:0"].total_act)/1000));
+					        this.voltage1 = ((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
 				        	this.ampere1 = ((this.powerConsumption/this.voltage1));
 				    	    if (this.powerConsumption < 0) { this.powerConsumption = 0 }
 				    	    if (this.totalPowerConsumption < 0) { this.totalPowerConsumption = 0 }
 				    	    if (this.voltage1 < 0) { this.voltage1 = 0 }
 				    	    if (this.ampere1 < 0) { this.ampere1 = 0 }
 					        } else if (this.negative_handling_mode == 1) {
-					        this.powerConsumption = Math.abs(parseFloat(json.emeters[0].power));
-					        this.totalPowerConsumption = Math.abs(parseFloat(json.emeters[0].total)/1000);
-					        this.voltage1 = Math.abs(parseFloat(json.emeters[0].voltage));
-				        	this.ampere1 = Math.abs((this.powerConsumption/this.voltage1));
+					        this.powerConsumption = Math.abs((parseFloat(json["em:0"].total_act_power)));
+					        this.totalPowerConsumption = Math.abs((parseFloat(json["emdata:0"].total_act)/1000));
+					        this.voltage1 = Math.abs((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				        	this.ampere1 = Math.abs(((parseFloat(json["em:0"].total_current)*this.pf0)));
 				      }
 						  	
 					    } else 
 					      { if (this.use_em_mode == 2) {
 					        if (this.negative_handling_mode == 0) {
-					        this.powerConsumption = (parseFloat(json.emeters[1].power));
-					        this.totalPowerConsumption = (parseFloat(json.emeters[1].total)/1000);
-					        this.voltage1 = (parseFloat(json.emeters[1].voltage));
+					        this.powerConsumption = ((parseFloat(json["em:0"].total_act_power)));
+					        this.totalPowerConsumption = ((parseFloat(json["emdata:0"].total_act)/1000));
+					        this.voltage1 = ((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
 				          this.ampere1 = ((this.powerConsumption/this.voltage1));
 				    	    if (this.powerConsumption < 0) { this.powerConsumption = 0 }
 				    	    if (this.totalPowerConsumption < 0) { this.totalPowerConsumption = 0 }
 				    	    if (this.voltage1 < 0) { this.voltage1 = 0 }
 				    	    if (this.ampere1 < 0) { this.ampere1 = 0 }
 					        } else if (this.negative_handling_mode == 1) {
-					          this.powerConsumption = Math.abs(parseFloat(json.emeters[1].power));
-					          this.totalPowerConsumption = Math.abs(parseFloat(json.emeters[1].total)/1000);
-					          this.voltage1 = Math.abs(parseFloat(json.emeters[1].voltage));
-				          	this.ampere1 = Math.abs((this.powerConsumption/this.voltage1));
+					          this.powerConsumption = Math.abs((parseFloat(json["em:0"].total_act_power)));
+					          this.totalPowerConsumption = Math.abs((parseFloat(json["emdata:0"].total_act)/1000));
+					          this.voltage1 = Math.abs((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				          	this.ampere1 = Math.abs(((parseFloat(json["em:0"].total_current)*this.pf0)));
 				          	}
 						  	
 					        }
@@ -235,10 +235,10 @@ EnergyMeter.prototype.updateState = function () {
 						} 
 						else {
 						 			if (this.negative_handling_mode == 0) {
-				           this.powerConsumption = (parseFloat(json.emeters[0].power)+parseFloat(json.emeters[1].power)+parseFloat(json.emeters[2].power));
-				           this.totalPowerConsumption = ((parseFloat(json.emeters[0].total)+parseFloat(json.emeters[1].total)+parseFloat(json.emeters[2].total))/1000);
-			             this.voltage1 = (((parseFloat(json.emeters[0].voltage)+parseFloat(json.emeters[1].voltage)+parseFloat(json.emeters[2].voltage))/3));
-				           this.ampere1 = (((parseFloat(json.emeters[0].current)*this.pf0)
+				           this.powerConsumption = ((parseFloat(json["em:0"].total_act_power)));
+				           this.totalPowerConsumption = ((parseFloat(json["emdata:0"].total_act)/1000));
+			             this.voltage1 = ((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				           this.ampere1 = (((parseFloat(((parseFloat(json["em:0"].total_current)*this.pf0)))*this.pf0)
 					          +(parseFloat(json.emeters[1].current)*this.pf1)
 					          +(parseFloat(json.emeters[2].current)*this.pf2)));
 				    	    if (this.powerConsumption < 0) { this.powerConsumption = 0 }
@@ -246,10 +246,10 @@ EnergyMeter.prototype.updateState = function () {
 				    	    if (this.voltage1 < 0) { this.voltage1 = 0 }
 				    	    if (this.ampere1 < 0) { this.ampere1 = 0 }
 					        } else if (this.negative_handling_mode == 1) {	
-				             this.powerConsumption = Math.abs(parseFloat(json.emeters[0].power)+parseFloat(json.emeters[1].power)+parseFloat(json.emeters[2].power));
-				             this.totalPowerConsumption = Math.abs((parseFloat(json.emeters[0].total)+parseFloat(json.emeters[1].total)+parseFloat(json.emeters[2].total))/1000);
-			               this.voltage1 = Math.abs(((parseFloat(json.emeters[0].voltage)+parseFloat(json.emeters[1].voltage)+parseFloat(json.emeters[2].voltage))/3));
-				             this.ampere1 = Math.abs(((parseFloat(json.emeters[0].current)*this.pf0)
+				             this.powerConsumption = Math.abs((parseFloat(json["em:0"].total_act_power)));
+				             this.totalPowerConsumption = Math.abs((parseFloat(json["emdata:0"].total_act)/1000));
+			               this.voltage1 = Math.abs((((parseFloat(json["em:0"].a_voltage)+parseFloat(json["em:0"].b_voltage)+parseFloat(json["em:0"].c_voltage))/3)));
+				             this.ampere1 = Math.abs((((parseFloat(json["em:0"].total_current)*this.pf0))*this.pf0)
 					            +(parseFloat(json.emeters[1].current)*this.pf1)
 					            +(parseFloat(json.emeters[2].current)*this.pf2)));
 					          }
